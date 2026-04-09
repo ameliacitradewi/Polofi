@@ -14,25 +14,27 @@ struct InputView: View {
     
     
     var body: some View {
-        VStack {
-            DatePicker(
-                "Select Time",
-                selection: $selectedTime,
-                displayedComponents: [.hourAndMinute]
-            )
-            
-            Picker("Select Playlist", selection: $selectedPlaylist) {
-                ForEach(Playlist.mockData) { playlist in
-                    Text(playlist.name)
-                        .tag(playlist as Playlist?)
+        NavigationStack {
+            VStack {
+                DatePicker(
+                    "Select Timer",
+                    selection: $selectedTime,
+                    displayedComponents: [.hourAndMinute]
+                )
+                
+                Picker("Select Playlist", selection: $selectedPlaylist) {
+                    ForEach(Playlist.mockData) { playlist in
+                        Text(playlist.name)
+                            .tag(playlist as Playlist?)
+                    }
+                }
+                
+                Button("Start") {
+                    print(selectedPlaylist?.name ?? "No playlist")
                 }
             }
-            
-            Button("Start") {
-                print(selectedPlaylist?.name ?? "No playlist")
-            }
         }
-        
+     
     }
 }
 
