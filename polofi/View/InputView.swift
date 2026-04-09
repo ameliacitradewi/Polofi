@@ -29,9 +29,10 @@ struct InputView: View {
                     }
                 }
                 
-                Button("Start") {
-                    print(selectedPlaylist?.name ?? "No playlist")
+                NavigationLink("Start") {
+                    TimerView()
                 }
+                
             }
         }
      
