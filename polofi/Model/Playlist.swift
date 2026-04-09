@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 
-struct Playlist: Identifiable {
+struct Playlist: Identifiable, Hashable {
     let id: UUID
     let name: String
     let songs: [Song]
