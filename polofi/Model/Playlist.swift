@@ -6,9 +6,8 @@
 //
 
 import Foundation
-import SwiftUI
 
-struct Playlist: Identifiable, Hashable {
+struct Playlist: Identifiable, Hashable, Codable {
     let id: UUID
     let name: String
     let songs: [Song]
@@ -38,18 +37,24 @@ struct Playlist: Identifiable, Hashable {
             Song(title: "Song 8", filename: "Song8.mp3"),
             Song(title: "Song 9", filename: "Song9.mp3"),
         ]),
+
+        Playlist(name: "Playlist 4", songs: [
+            Song(title: "Song 10", filename: "Song10.mp3"),
+            Song(title: "Song 11", filename: "Song11.mp3"),
+            Song(title: "Song 12", filename: "Song12.mp3"),
+        ]),
     ]
 }
 
-#Preview {
-    let playlists = Playlist.mockData
-    ForEach (playlists) { playlist in
-        Text(playlist.name)
-        
-        ForEach (playlist.songs) { song in
-            Text(song.title)
-        }
-    }
-    
-//    let allSongs = Playlist.mockData.flatMap { $0.songs }
-}
+//#Preview {
+//    let playlists = Playlist.mockData
+//    ForEach (playlists) { playlist in
+//        Text(playlist.name)
+//        
+//        ForEach (playlist.songs) { song in
+//            Text(song.title)
+//        }
+//    }
+//    
+////    let allSongs = Playlist.mockData.flatMap { $0.songs }
+//}

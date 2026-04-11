@@ -29,9 +29,12 @@ struct InputView: View {
                     }
                 }
                 
-                NavigationLink("Start") {
-                    TimerView()
+                NavigationLink {
+                    TimerView(playlist: Playlist.mockData.first!, duration: 20)
+                } label: {
+                    Text("Start")
                 }
+
                 
             }
         }
