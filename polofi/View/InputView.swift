@@ -17,7 +17,7 @@ struct InputView: View {
         NavigationStack {
             VStack {
                 DatePicker(
-                    "Select Timer",
+                    "Set Focus Time",
                     selection: $selectedTime,
                     displayedComponents: [.hourAndMinute]
                 )
@@ -29,7 +29,7 @@ struct InputView: View {
                     }
                 }
                 
-                NavigationLink(destination: TimerView(playlist: selectedPlaylist!, duration: 300)) {
+                NavigationLink(destination: TimerView(playlist: selectedPlaylist!, duration: durationInSeconds)) {
                     Text("Start")
                 }
                 
@@ -38,6 +38,16 @@ struct InputView: View {
         }
         
     }
+    
+    private var durationInSeconds: TimeInterval {
+        let components = Calendar.current.dateComponents([.hour, .minute], from: selectedTime)
+        
+        let hours = components.hour ?? 0
+        let minutes = components.minute ?? 0
+        
+        return TimeInterval((hours * 3600) + (minutes * 60))
+    }
+    
 }
 
 #Preview {

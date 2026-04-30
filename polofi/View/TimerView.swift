@@ -6,17 +6,22 @@
 //
 
 import SwiftUI
+import AVFoundation
 
 struct TimerView: View {
     let playlist: Playlist
     let duration: TimeInterval
 
     @State private var remainingTime: TimeInterval
+    @State private var audioPlayer: AVAudioPlayer?
+    @State private var currentSongIndex: Int = 0
     
     private var timeString: String {
-        let minutes = Int(remainingTime) / 60
-        let seconds = Int(remainingTime) % 60
-        return String(format: "%02d:%02d", minutes, seconds)
+        let totalSeconds = max(Int(remainingTime), 0)
+        let hours = totalSeconds / 3600
+        let minutes = (totalSeconds % 3600) / 60
+        let seconds = totalSeconds % 60
+        return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
     }
 
     init(playlist: Playlist, duration: TimeInterval) {
@@ -38,6 +43,8 @@ struct TimerView: View {
             Text(timeString)
 //            Text("\(Int(remainingTime)) seconds")
                 .font(.largeTitle)
+            
+            SongsPlay(playlist: playlist)
 
         }
         .onAppear {
@@ -53,6 +60,10 @@ struct TimerView: View {
                 timer.invalidate()
             }
         }
+    }
+    
+    private func playSong() {
+        _ = playlist.songs
     }
 }
 

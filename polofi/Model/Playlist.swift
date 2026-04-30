@@ -21,27 +21,23 @@ struct Playlist: Identifiable, Hashable, Codable {
     // MARK: Mock Data
     static let mockData: [Playlist] = [
         Playlist(name: "Playlist 1", songs: [
-            Song(title: "Song 1", filename: "Songs1.mp3"),
-            Song(title: "Song 2", filename: "Songs2.mp3"),
-            Song(title: "Song 3", filename: "Songs3.mp3")
+            Song(title: "Bluewave - A Better Future", filename: "Bluewave-A Better Future.mp3"),
+            Song(title: "Dagored - Quiet Fields", filename: "Dagored-Quiet Fields.mp3"),
         ]),
         
         Playlist(name: "Playlist 2", songs: [
-            Song(title: "Song 4", filename: "Song4.mp3"),
-            Song(title: "Song 5", filename: "Song5.mp3"),
-            Song(title: "Song 6", filename: "Song6.mp3"),
+            Song(title: "Hazelwood - At Ease", filename: "Hazelwood-At Ease.mp3"),
+            Song(title: "Pufino - Enjoy", filename: "Pufino-Enjoy.mp3"),
         ]),
         
         Playlist(name: "Playlist 3", songs: [
-            Song(title: "Song 7", filename: "Song7.mp3"),
-            Song(title: "Song 8", filename: "Song8.mp3"),
-            Song(title: "Song 9", filename: "Song9.mp3"),
+            Song(title: "Spiring - City Life", filename: "Spiring-City Life.mp3"),
+            Song(title: "Aylex - Happy Moments", filename: "Aylex-Happy Moments.mp3"),
         ]),
 
         Playlist(name: "Playlist 4", songs: [
-            Song(title: "Song 10", filename: "Song10.mp3"),
-            Song(title: "Song 11", filename: "Song11.mp3"),
-            Song(title: "Song 12", filename: "Song12.mp3"),
+            Song(title: "Moavii - Sunset Dreams", filename: "Moavii-Sunset Dreams.mp3"),
+            Song(title: "Piki - Fancy Park", filename: "Piki-Fancy Park.mp3"),
         ]),
     ]
 }

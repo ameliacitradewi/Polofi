@@ -25,7 +25,7 @@ struct polofiApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            InputView()
         }
         .modelContainer(sharedModelContainer)
     }
