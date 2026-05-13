@@ -11,7 +11,7 @@ struct PlaylistView: View {
     var body: some View {
         GeometryReader { geo in
             ZStack {
-                BgView()
+                SetBgView()
             }
             
         }
