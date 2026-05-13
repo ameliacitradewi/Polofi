@@ -17,7 +17,7 @@ struct InputView: View {
         NavigationStack {
             GeometryReader { geo in
                 ZStack {
-                    Color.yellow.ignoresSafeArea()
+                    SetBgView()
                     
                     VStack {
                         Text("Set Focus Time")
@@ -64,7 +64,10 @@ struct InputView: View {
                             Text("Start")
                         }
                     } // end vstack
+                    .padding()
+                    .foregroundColor(.white)
                     .frame(width: geo.size.width * 0.8)
+                    .background(Color.white.opacity(0.3)).cornerRadius(30)
                 } // end zstack
             } // end geometry
         }
