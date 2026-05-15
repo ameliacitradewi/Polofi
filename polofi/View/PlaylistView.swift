@@ -12,6 +12,10 @@ struct PlaylistView: View {
         GeometryReader { geo in
             ZStack {
                 SetBgView()
+                
+                VStack {
+                    
+                }
             }
             
         }

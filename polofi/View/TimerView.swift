@@ -6,64 +6,32 @@
 //
 
 import SwiftUI
-import AVFoundation
 
 struct TimerView: View {
-    let playlist: Playlist
-    let duration: TimeInterval
-
-    @State private var remainingTime: TimeInterval
-    @State private var audioPlayer: AVAudioPlayer?
-    @State private var currentSongIndex: Int = 0
-    
-    private var timeString: String {
-        let totalSeconds = max(Int(remainingTime), 0)
-        let hours = totalSeconds / 3600
-        let minutes = (totalSeconds % 3600) / 60
-        let seconds = totalSeconds % 60
-        return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
-    }
+    @StateObject private var viewModel: TimerViewModel
 
     init(playlist: Playlist, duration: TimeInterval) {
-        self.playlist = playlist
-        self.duration = duration
-        _remainingTime = State(initialValue: duration)
+        _viewModel = StateObject(wrappedValue: TimerViewModel(playlist: playlist, duration: duration))
     }
 
     var body: some View {
         VStack(spacing: 20) {
-            
+
             Text("Now Playing")
                 .font(.headline)
-            
-            Text(playlist.name)
+
+            Text(viewModel.playlist.name)
                 .font(.title)
                 .bold()
-            
-            Text(timeString)
-//            Text("\(Int(remainingTime)) seconds")
+
+            Text(viewModel.formattedTime)
                 .font(.largeTitle)
-            
-            SongsPlay(playlist: playlist)
+
+            SongsPlay(playlist: viewModel.playlist)
 
         }
         .onAppear {
-            startTimer()
+            viewModel.startTimer()
         }
-    }
-
-    private func startTimer() {
-        Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
-            if remainingTime > 0 {
-                remainingTime -= 1
-            } else {
-                timer.invalidate()
-            }
-        }
-    }
-    
-    private func playSong() {
-        _ = playlist.songs
     }
 }
-
