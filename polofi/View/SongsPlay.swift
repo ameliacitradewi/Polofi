@@ -15,12 +15,12 @@ struct SongsPlay: View {
     }
 
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(alignment: .leading) {
             Text(viewModel.playlist.name)
                 .font(.title2)
                 .bold()
 
-            HStack(spacing: 16) {
+            HStack(alignment: .center, spacing: 16) {
                 Button {
                     viewModel.playPreviousSong()
                 } label: {
@@ -29,10 +29,8 @@ struct SongsPlay: View {
                 }
                 .disabled(viewModel.currentSongIndex == 0 || viewModel.playlist.songs.isEmpty)
 
-                Text(viewModel.currentSongTitle)
-                    .font(.headline)
-                    .lineLimit(1)
-                    .frame(maxWidth: .infinity)
+                MarqueeView(text: viewModel.currentSongTitle, font: .headline)
+                    .frame(minWidth: 0, maxWidth: .infinity)
 
                 Button {
                     viewModel.playNextSong()
@@ -42,7 +40,6 @@ struct SongsPlay: View {
                 }
                 .disabled(viewModel.playlist.songs.isEmpty)
             }
-            .padding(.horizontal)
         }
         .onDisappear {
             viewModel.stop()

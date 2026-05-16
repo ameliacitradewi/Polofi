@@ -21,7 +21,7 @@ struct Playlist: Identifiable, Hashable, Codable {
     // MARK: Mock Data
     static let mockData: [Playlist] = [
         Playlist(name: "Playlist 1", songs: [
-            Song(title: "Bluewave - A Better Future", filename: "Bluewave-A Better Future.mp3"),
+            Song(title: "Bluewave - A Better Future Bluewave12345678901234567890", filename: "Bluewave-A Better Future.mp3"),
             Song(title: "Dagored - Quiet Fields", filename: "Dagored-Quiet Fields.mp3"),
         ]),
         

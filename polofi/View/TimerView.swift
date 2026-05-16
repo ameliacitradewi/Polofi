@@ -35,3 +35,11 @@ struct TimerView: View {
         }
     }
 }
+
+#Preview("Timer View") {
+    TimerView(
+        playlist: Playlist.mockData.first ?? Playlist(id: UUID(), name: "Sample", songs: []),
+        duration: 125
+    )
+    .padding()
+}
