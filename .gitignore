@@ -1,0 +1,51 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Xcode — user-specific (jangan commit)
+xcuserdata/
+*.xcuserstate
+*.xcbkptlist
+*.xcscmblueprint
+
+# Xcode — build & derived data
+build/
+DerivedData/
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Swift Package Manager
+.build/
+.swiftpm/xcode/package.xcworkspace/xcuserdata/
+
+# CocoaPods
+Pods/
+
+# Carthage
+Carthage/Build/
+
+# fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
+
+# Playgrounds
+timeline.xctimeline
+playground.xcworkspace
+
+# IDE / editor
+.idea/
+*.swp
+*~
+
+# Env & secrets (jika nanti dipakai)
+.env
+.env.*
+*.pem
+*.p12
