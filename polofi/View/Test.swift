@@ -29,7 +29,7 @@ struct Test: View {
                     
                     Spacer()
                     
-                    SongsPlay(playlist: playlist)
+                    SongsPlayHost(playlist: playlist)
                         .frame(maxWidth: geo.size.width)
                 }
                 .frame(maxWidth: geo.size.width)

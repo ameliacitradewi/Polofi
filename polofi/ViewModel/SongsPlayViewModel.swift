@@ -16,6 +16,7 @@ final class SongsPlayViewModel: NSObject, ObservableObject {
 
     let playlist: Playlist
     private var audioPlayer: AVAudioPlayer?
+    private var suppressAutoAdvance = false
 
     var currentSongTitle: String {
         guard !playlist.songs.isEmpty else { return "No songs available" }
@@ -30,12 +31,14 @@ final class SongsPlayViewModel: NSObject, ObservableObject {
 
     func playNextSong() {
         guard !playlist.songs.isEmpty else { return }
+        suppressAutoAdvance = false
         currentSongIndex = (currentSongIndex + 1) % playlist.songs.count
         playCurrentSong()
     }
 
     func playPreviousSong() {
         guard currentSongIndex > 0 else { return }
+        suppressAutoAdvance = false
         currentSongIndex -= 1
         playCurrentSong()
     }
@@ -71,6 +74,12 @@ final class SongsPlayViewModel: NSObject, ObservableObject {
         isPlaying = false
     }
 
+    func pauseWhenTimerEnds() {
+        suppressAutoAdvance = true
+        audioPlayer?.pause()
+        isPlaying = false
+    }
+
     private func audioURL(for filename: String) -> URL? {
         if let url = Bundle.main.url(forResource: filename, withExtension: nil) {
             return url
@@ -88,6 +97,7 @@ final class SongsPlayViewModel: NSObject, ObservableObject {
 extension SongsPlayViewModel: AVAudioPlayerDelegate {
     nonisolated func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         Task { @MainActor in
+            guard !suppressAutoAdvance else { return }
             playNextSong()
         }
     }

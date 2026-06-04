@@ -41,7 +41,7 @@ struct TimerView: View {
 
                 Spacer(minLength: 0)
 
-                SongsPlay(playlist: viewModel.playlist)
+                SongsPlay(viewModel: viewModel.songsViewModel)
                     .padding(.horizontal, 16)
                     .padding(.bottom, 28)
             }

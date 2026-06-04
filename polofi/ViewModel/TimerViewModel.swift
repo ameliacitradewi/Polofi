@@ -12,6 +12,7 @@ import Combine
 final class TimerViewModel: ObservableObject {
     let playlist: Playlist
     let duration: TimeInterval
+    let songsViewModel: SongsPlayViewModel
 
     @Published private(set) var remainingTime: TimeInterval
 
@@ -20,6 +21,7 @@ final class TimerViewModel: ObservableObject {
     init(playlist: Playlist, duration: TimeInterval) {
         self.playlist = playlist
         self.duration = duration
+        self.songsViewModel = SongsPlayViewModel(playlist: playlist)
         self.remainingTime = duration
     }
 
@@ -59,11 +61,16 @@ final class TimerViewModel: ObservableObject {
     }
 
     private func handleCountdownTick() {
-        if remainingTime > 0 {
-            remainingTime -= 1
-        } else {
+        guard remainingTime > 0 else {
             countdownTimer?.invalidate()
             countdownTimer = nil
+            return
+        }
+
+        remainingTime -= 1
+
+        if remainingTime == 0 {
+            songsViewModel.pauseWhenTimerEnds()
         }
     }
 }

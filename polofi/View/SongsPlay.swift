@@ -8,11 +8,11 @@
 import SwiftUI
 
 struct SongsPlay: View {
-    @StateObject private var viewModel: SongsPlayViewModel
+    @ObservedObject var viewModel: SongsPlayViewModel
     @State private var isControlsVisible = true
 
-    init(playlist: Playlist) {
-        _viewModel = StateObject(wrappedValue: SongsPlayViewModel(playlist: playlist))
+    init(viewModel: SongsPlayViewModel) {
+        self._viewModel = ObservedObject(wrappedValue: viewModel)
     }
 
     var body: some View {
@@ -85,8 +85,21 @@ struct SongsPlay: View {
     }
 }
 
+/// Memiliki lifecycle ViewModel sendiri — untuk preview / layar tanpa parent yang share VM.
+struct SongsPlayHost: View {
+    @StateObject private var viewModel: SongsPlayViewModel
+
+    init(playlist: Playlist) {
+        _viewModel = StateObject(wrappedValue: SongsPlayViewModel(playlist: playlist))
+    }
+
+    var body: some View {
+        SongsPlay(viewModel: viewModel)
+    }
+}
+
 #Preview {
-    SongsPlay(playlist: Playlist.mockData[0])
+    SongsPlayHost(playlist: Playlist.mockData[0])
         .padding()
         .background(Color.gray.opacity(0.3))
 }
