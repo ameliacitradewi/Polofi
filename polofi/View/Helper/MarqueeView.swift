@@ -8,25 +8,22 @@
 import SwiftUI
 import UIKit
 
+// MARK: - Measurement
+
 private enum MarqueeMeasure {
     static func singleLineWidth(for string: String, textStyle: UIFont.TextStyle) -> CGFloat {
-        let uiFont = UIFont.preferredFont(forTextStyle: textStyle)
-        let size = (string as NSString).size(withAttributes: [.font: uiFont])
+        let baseFont = UIFont.preferredFont(forTextStyle: textStyle)
+        let font = UIFontMetrics(forTextStyle: textStyle).scaledFont(for: baseFont)
+        let size = (string as NSString).size(withAttributes: [.font: font])
         return ceil(size.width)
     }
 }
 
-private struct ContainerWidthKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
-    }
-}
+// MARK: - MarqueeView
 
 struct MarqueeView: View {
     let text: String
     var font: Font = .headline
-    /// Harus selaras dengan `font` untuk deteksi overflow (default = `.headline`).
     var measurementTextStyle: UIFont.TextStyle = .headline
     var interItemSpacing: CGFloat = 40
     var pixelsPerSecond: CGFloat = 30
@@ -35,75 +32,75 @@ struct MarqueeView: View {
 
     @State private var containerWidth: CGFloat = 0
 
-    var body: some View {
-        let stripWidth = MarqueeMeasure.singleLineWidth(for: text, textStyle: measurementTextStyle)
-        let overflows = stripWidth > containerWidth + 0.5 && containerWidth > 0
+    private var stripWidth: CGFloat {
+        MarqueeMeasure.singleLineWidth(for: text, textStyle: measurementTextStyle)
+    }
 
-        ZStack(alignment: .leading) {
-            Group {
-                if overflows {
-                    MarqueeStrip(
-                        text: text,
-                        font: font,
-                        segmentWidth: stripWidth,
-                        gap: interItemSpacing,
-                        pixelsPerSecond: pixelsPerSecond
-                    )
-                    .frame(width: containerWidth, alignment: .leading)
-                    .clipped()
-                } else {
-                    Text(text)
-                        .font(font)
-                        .lineLimit(1)
-                        .multilineTextAlignment(.center)
-                        .frame(maxWidth: .infinity)
-                }
+    private var shouldScroll: Bool {
+        containerWidth > 0 && stripWidth > containerWidth + 1
+    }
+
+    var body: some View {
+        Group {
+            if shouldScroll {
+                MarqueeScrollContent(
+                    text: text,
+                    font: font,
+                    gap: interItemSpacing,
+                    pixelsPerSecond: pixelsPerSecond,
+                    segmentWidth: stripWidth
+                )
+                .frame(width: containerWidth, alignment: .leading)
+                .clipped()
+            } else {
+                Text(text)
+                    .font(font)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                    .frame(maxWidth: .infinity, alignment: .center)
             }
-            .accessibilityLabel(text)
         }
+        .animation(.none, value: shouldScroll)
         .frame(maxWidth: .infinity)
         .background {
-            GeometryReader { geo in
-                Color.clear.preference(key: ContainerWidthKey.self, value: geo.size.width)
-            }
+            Color.clear
+                .onGeometryChange(for: CGFloat.self, of: { $0.size.width }) { width in
+                    if width > 0, abs(width - containerWidth) > 0.5 {
+                        containerWidth = width
+                    }
+                }
         }
-        .onPreferenceChange(ContainerWidthKey.self) { containerWidth = $0 }
+        .accessibilityLabel(text)
         .id("\(text)-\(sizeCategory)")
     }
 }
 
-private struct MarqueeStrip: View {
+// MARK: - Scrolling strip
+
+private struct MarqueeScrollContent: View {
     let text: String
     let font: Font
-    let segmentWidth: CGFloat
     let gap: CGFloat
     let pixelsPerSecond: CGFloat
-
-    @State private var animating = false
+    let segmentWidth: CGFloat
 
     private var distance: CGFloat { segmentWidth + gap }
     private var duration: Double { max(Double(distance / pixelsPerSecond), 1.5) }
 
     var body: some View {
-        HStack(spacing: gap) {
-            label
-            label
-        }
-        .offset(x: animating ? -distance : 0)
-        .task { startAnimation() }
-        .onChange(of: distance) {
-            animating = false
-            DispatchQueue.main.async { startAnimation() }
-        }
-    }
+        TimelineView(.animation(minimumInterval: 1.0 / 60.0)) { timeline in
+            let elapsed = timeline.date.timeIntervalSinceReferenceDate
+            let progress = elapsed.remainder(dividingBy: duration) / duration
+            let offset = -CGFloat(progress) * distance
 
-    private func startAnimation() {
-        withAnimation(
-            .linear(duration: duration)
-                .repeatForever(autoreverses: false)
-        ) {
-            animating = true
+            HStack(spacing: gap) {
+                label
+                label
+            }
+            .offset(x: offset)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .clipped()
     }
 
     private var label: some View {
@@ -121,7 +118,7 @@ private struct MarqueeStrip: View {
             .fontWeight(.semibold)
         HStack(spacing: 8) {
             Image(systemName: "backward.fill")
-            MarqueeView(text: "Purrple Cat - Crescent Moon Extra Long Title Here")
+            MarqueeView(text: "Bluewave - A Better Future Bluewave12345678901234567890")
             Image(systemName: "forward.fill")
         }
     }
