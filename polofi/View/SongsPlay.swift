@@ -79,6 +79,9 @@ struct SongsPlay: View {
                 .fill(Color.white.opacity(0.94))
                 .shadow(color: .black.opacity(0.08), radius: 10, x: 0, y: 4)
         }
+        .onAppear {
+            viewModel.startPlaybackIfNeeded()
+        }
         .onDisappear {
             viewModel.stop()
         }

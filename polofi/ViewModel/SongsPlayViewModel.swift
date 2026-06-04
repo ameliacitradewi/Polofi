@@ -14,8 +14,11 @@ final class SongsPlayViewModel: NSObject, ObservableObject {
     @Published private(set) var currentSongIndex: Int = 0
     @Published private(set) var isPlaying: Bool = false
 
+    private static let timerEndSoundFilename = "ding.mp3"
+
     let playlist: Playlist
     private var audioPlayer: AVAudioPlayer?
+    private var timerEndPlayer: AVAudioPlayer?
     private var suppressAutoAdvance = false
 
     var currentSongTitle: String {
@@ -26,7 +29,35 @@ final class SongsPlayViewModel: NSObject, ObservableObject {
     init(playlist: Playlist) {
         self.playlist = playlist
         super.init()
+    }
+
+    func startPlaybackIfNeeded() {
+        guard !playlist.songs.isEmpty else {
+            isPlaying = false
+            return
+        }
+
+        configureAudioSession()
+
+        if let player = audioPlayer {
+            if !player.isPlaying {
+                player.play()
+                isPlaying = true
+            }
+            return
+        }
+
         playCurrentSong()
+    }
+
+    private func configureAudioSession() {
+        let session = AVAudioSession.sharedInstance()
+        do {
+            try session.setCategory(.playback, mode: .default)
+            try session.setActive(true)
+        } catch {
+            print("Failed to configure audio session: \(error.localizedDescription)")
+        }
     }
 
     func playNextSong() {
@@ -48,6 +79,8 @@ final class SongsPlayViewModel: NSObject, ObservableObject {
             isPlaying = false
             return
         }
+
+        configureAudioSession()
 
         let song = playlist.songs[currentSongIndex]
 
@@ -71,6 +104,7 @@ final class SongsPlayViewModel: NSObject, ObservableObject {
 
     func stop() {
         audioPlayer?.stop()
+        timerEndPlayer?.stop()
         isPlaying = false
     }
 
@@ -78,6 +112,22 @@ final class SongsPlayViewModel: NSObject, ObservableObject {
         suppressAutoAdvance = true
         audioPlayer?.pause()
         isPlaying = false
+        playTimerEndSound()
+    }
+
+    private func playTimerEndSound() {
+        guard let url = audioURL(for: Self.timerEndSoundFilename) else {
+            print("Timer end sound not found: \(Self.timerEndSoundFilename)")
+            return
+        }
+
+        do {
+            timerEndPlayer = try AVAudioPlayer(contentsOf: url)
+            timerEndPlayer?.prepareToPlay()
+            timerEndPlayer?.play()
+        } catch {
+            print("Failed to play timer end sound: \(error.localizedDescription)")
+        }
     }
 
     private func audioURL(for filename: String) -> URL? {
