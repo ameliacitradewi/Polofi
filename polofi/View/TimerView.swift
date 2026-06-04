@@ -15,20 +15,36 @@ struct TimerView: View {
     }
 
     var body: some View {
-        VStack(spacing: 20) {
+        ZStack {
+            SetBgView()
+                .ignoresSafeArea()
 
-            Text("Now Playing")
-                .font(.headline)
+            VStack(spacing: 0) {
+                HStack(alignment: .top) {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Focus Time:")
+                            .font(.headline)
 
-            Text(viewModel.playlist.name)
-                .font(.title)
-                .bold()
+                        Text("\(viewModel.minutesRemaining) Minutes")
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+                            .minimumScaleFactor(0.75)
 
-            Text(viewModel.formattedTime)
-                .font(.largeTitle)
+                        Text("\(viewModel.secondsRemainingPadded) Seconds")
+                            .font(.headline)
+                    }
+                    .padding(.top, 8)
 
-            SongsPlay(playlist: viewModel.playlist)
+                    Spacer(minLength: 0)
+                }
+                .padding(.horizontal, 20)
 
+                Spacer(minLength: 0)
+
+                SongsPlay(playlist: viewModel.playlist)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 28)
+            }
         }
         .onAppear {
             viewModel.startTimer()
@@ -41,5 +57,4 @@ struct TimerView: View {
         playlist: Playlist.mockData.first ?? Playlist(id: UUID(), name: "Sample", songs: []),
         duration: 125
     )
-    .padding()
 }

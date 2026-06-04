@@ -6,66 +6,69 @@
 //
 
 import SwiftUI
+import UIKit
 
-private struct MeasuredStripWidthKey: PreferenceKey {
+private enum MarqueeMeasure {
+    static func singleLineWidth(for string: String, textStyle: UIFont.TextStyle) -> CGFloat {
+        let uiFont = UIFont.preferredFont(forTextStyle: textStyle)
+        let size = (string as NSString).size(withAttributes: [.font: uiFont])
+        return ceil(size.width)
+    }
+}
+
+private struct ContainerWidthKey: PreferenceKey {
     static var defaultValue: CGFloat = 0
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
         value = nextValue()
     }
 }
 
-/// Single-line title: stays centered when it fits; horizontal marquee when wider than available space (Spotify-style seamless loop).
 struct MarqueeView: View {
     let text: String
     var font: Font = .headline
+    /// Harus selaras dengan `font` untuk deteksi overflow (default = `.headline`).
+    var measurementTextStyle: UIFont.TextStyle = .headline
     var interItemSpacing: CGFloat = 40
-    /// Scroll speed roughly in points per second.
     var pixelsPerSecond: CGFloat = 30
 
-    @State private var measuredStripWidth: CGFloat = 0
+    @Environment(\.sizeCategory) private var sizeCategory
+
+    @State private var containerWidth: CGFloat = 0
 
     var body: some View {
-        GeometryReader { geo in
-            let w = geo.size.width
-            let h = geo.size.height
-            let overflows = measuredStripWidth > w + 0.5 && w > 0 && measuredStripWidth > 0
+        let stripWidth = MarqueeMeasure.singleLineWidth(for: text, textStyle: measurementTextStyle)
+        let overflows = stripWidth > containerWidth + 0.5 && containerWidth > 0
 
+        ZStack(alignment: .leading) {
             Group {
                 if overflows {
                     MarqueeStrip(
                         text: text,
                         font: font,
-                        segmentWidth: measuredStripWidth,
+                        segmentWidth: stripWidth,
                         gap: interItemSpacing,
                         pixelsPerSecond: pixelsPerSecond
                     )
-                    .frame(width: w, height: h, alignment: .leading)
+                    .frame(width: containerWidth, alignment: .leading)
                     .clipped()
                 } else {
                     Text(text)
                         .font(font)
                         .lineLimit(1)
                         .multilineTextAlignment(.center)
-                        .frame(width: w, height: h, alignment: .center)
+                        .frame(maxWidth: .infinity)
                 }
             }
             .accessibilityLabel(text)
         }
-        .overlay(alignment: .topLeading) {
-            Text(text)
-                .font(font)
-                .lineLimit(1)
-                .fixedSize(horizontal: true, vertical: false)
-                .background {
-                    GeometryReader { g in
-                        Color.clear.preference(key: MeasuredStripWidthKey.self, value: g.size.width)
-                    }
-                }
-                .accessibilityHidden(true)
-                .hidden()
+        .frame(maxWidth: .infinity)
+        .background {
+            GeometryReader { geo in
+                Color.clear.preference(key: ContainerWidthKey.self, value: geo.size.width)
+            }
         }
-        .onPreferenceChange(MeasuredStripWidthKey.self) { measuredStripWidth = $0 }
-        .id(text)
+        .onPreferenceChange(ContainerWidthKey.self) { containerWidth = $0 }
+        .id("\(text)-\(sizeCategory)")
     }
 }
 
@@ -76,21 +79,30 @@ private struct MarqueeStrip: View {
     let gap: CGFloat
     let pixelsPerSecond: CGFloat
 
-    @State private var offset: CGFloat = 0
+    @State private var animating = false
+
+    private var distance: CGFloat { segmentWidth + gap }
+    private var duration: Double { max(Double(distance / pixelsPerSecond), 1.5) }
 
     var body: some View {
         HStack(spacing: gap) {
             label
             label
         }
-        .offset(x: offset)
-        .onAppear {
-            let distance = segmentWidth + gap
-            let duration = max(Double(distance / pixelsPerSecond), 1.5)
-            offset = 0
-            withAnimation(.linear(duration: duration).repeatForever(autoreverses: false)) {
-                offset = -distance
-            }
+        .offset(x: animating ? -distance : 0)
+        .task { startAnimation() }
+        .onChange(of: distance) {
+            animating = false
+            DispatchQueue.main.async { startAnimation() }
+        }
+    }
+
+    private func startAnimation() {
+        withAnimation(
+            .linear(duration: duration)
+                .repeatForever(autoreverses: false)
+        ) {
+            animating = true
         }
     }
 
@@ -103,13 +115,31 @@ private struct MarqueeStrip: View {
 }
 
 #Preview("Overflow") {
-    MarqueeView(text: "Bluewave - A Better Future Bluewave12345678901234567890")
-        .frame(width: 180)
-        .padding()
+    VStack(alignment: .leading) {
+        Text("Lofi Chill Playlist")
+            .font(.headline)
+            .fontWeight(.semibold)
+        HStack(spacing: 8) {
+            Image(systemName: "backward.fill")
+            MarqueeView(text: "Purrple Cat - Crescent Moon Extra Long Title Here")
+            Image(systemName: "forward.fill")
+        }
+    }
+    .padding()
+    .frame(width: 320)
 }
 
 #Preview("Fits") {
-    MarqueeView(text: "Short title")
-        .frame(width: 220)
-        .padding()
+    VStack(alignment: .leading) {
+        Text("Lofi Chill Playlist")
+            .font(.headline)
+            .fontWeight(.semibold)
+        HStack(spacing: 8) {
+            Image(systemName: "backward.fill")
+            MarqueeView(text: "Short title")
+            Image(systemName: "forward.fill")
+        }
+    }
+    .padding()
+    .frame(width: 320)
 }

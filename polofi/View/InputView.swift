@@ -12,7 +12,6 @@ struct InputView: View {
     @State private var selectedHour = 0
     @State private var selectedMinute = 0
     
-    
     var body: some View {
         NavigationStack {
             GeometryReader { geo in
@@ -65,7 +64,7 @@ struct InputView: View {
                         }
                     } // end vstack
                     .padding()
-                    .foregroundColor(.white)
+//                    .foregroundColor(DayPhase.phase.)
                     .frame(width: geo.size.width * 0.8)
                     .background(Color.white.opacity(0.3)).cornerRadius(30)
                 } // end zstack

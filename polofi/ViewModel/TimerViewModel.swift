@@ -31,6 +31,20 @@ final class TimerViewModel: ObservableObject {
         return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
     }
 
+    /// Untuk tampilan baris “X Minutes” / “YY Seconds”.
+    /// 
+    var minutesRemaining: Int {
+        max(Int(remainingTime), 0) / 60
+    }
+
+    var secondsRemaining: Int {
+        max(Int(remainingTime), 0) % 60
+    }
+
+    var secondsRemainingPadded: String {
+        String(format: "%02d", secondsRemaining)
+    }
+
     func startTimer() {
         countdownTimer?.invalidate()
         countdownTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] timer in

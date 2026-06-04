@@ -12,6 +12,13 @@ enum DayPhase: String, CaseIterable {
     
     var imageName: String { rawValue }
     
+    var textColor: Color {
+        switch self {
+        case .morning, .afternoon, .evening: return .black
+        case .night: return .white
+        }
+    }
+    
     // set time for enum
     static func phase(for date: Date, calendar: Calendar = .current) -> DayPhase {
         let comps = calendar.dateComponents([.hour, .minute], from: date)
