@@ -9,6 +9,8 @@ import SwiftUI
 
 struct TimerView: View {
     @StateObject private var viewModel: TimerViewModel
+    @Environment(\.scenePhase) private var scenePhase
+    @State private var scheduler = DayPhaseScheduler()
 
     init(playlist: Playlist, duration: TimeInterval) {
         _viewModel = StateObject(wrappedValue: TimerViewModel(playlist: playlist, duration: duration))
@@ -45,9 +47,15 @@ struct TimerView: View {
                     .padding(.horizontal, 16)
                     .padding(.bottom, 28)
             }
+            .foregroundColor(scheduler.phase.textColor)
         }
         .onAppear {
             viewModel.startTimer()
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .active {
+                scheduler.refreshFromSystemClock()
+            }
         }
     }
 }
