@@ -21,7 +21,7 @@ struct SongsPlay: View {
                 Text(viewModel.playlist.name)
                     .font(.headline)
                     .fontWeight(.semibold)
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(.black)
                     .lineLimit(1)
 
                 Spacer(minLength: 8)
@@ -33,7 +33,7 @@ struct SongsPlay: View {
                 } label: {
                     Image(systemName: isControlsVisible ? "chevron.up" : "chevron.down")
                         .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(.black)
                         .frame(width: 32, height: 32)
                         .background {
                             Circle()
@@ -69,6 +69,7 @@ struct SongsPlay: View {
                     }
                     .disabled(viewModel.playlist.songs.isEmpty)
                 }
+                .foregroundColor(.black)
             }
         }
         .padding(.horizontal, 16)

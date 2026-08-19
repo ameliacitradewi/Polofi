@@ -91,7 +91,7 @@ struct MainMenuView: View {
                     .foregroundColor(Color.black)
                     .padding(.vertical, 10)
                     .padding(.horizontal, 10)
-                    .frame(width: .infinity, height: geo.size.height)
+//                    .frame(width: .infinity, height: geo.size.height)
                 }
             }
         }
