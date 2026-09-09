@@ -103,7 +103,9 @@ struct SongsPlayHost: View {
 }
 
 #Preview {
-    SongsPlayHost(playlist: Playlist.mockData[0])
-        .padding()
-        .background(Color.gray.opacity(0.3))
+    if let playlist = MusicLibrary.playlists.first {
+        SongsPlayHost(playlist: playlist)
+            .padding()
+            .background(Color.gray.opacity(0.3))
+    }
 }

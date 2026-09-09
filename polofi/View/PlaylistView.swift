@@ -8,14 +8,14 @@
 import SwiftUI
 
 struct PlaylistView: View {
-    private let playlists = Playlist.mockData
+    private let playlists = MusicLibrary.playlists
     private let columns = [
         GridItem(.flexible(minimum: 0), spacing: 12),
         GridItem(.flexible(minimum: 0), spacing: 12),
     ]
 
-    @State private var selectedPlaylistID = Playlist.mockData.first?.id
-    @State private var selectedSongID = Playlist.mockData.first?.songs.first?.id
+    @State private var selectedPlaylistID = MusicLibrary.playlists.first?.id
+    @State private var selectedSongID = MusicLibrary.playlists.first?.songs.first?.id
 
     private var selectedPlaylist: Playlist? {
         playlists.first { $0.id == selectedPlaylistID } ?? playlists.first
@@ -44,13 +44,18 @@ struct PlaylistView: View {
 
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 18) {
+                    if playlists.isEmpty {
+                        ContentUnavailableView("No playlists available", systemImage: "music.note.list")
+                    }
                     LazyVGrid(columns: columns, spacing: 12) {
                         ForEach(playlists) { playlist in
                             playlistCard(playlist)
                         }
                     }
 
-                    recentlyPlayedSection
+                    if !recentlyPlayedSongs.isEmpty {
+                        recentlyPlayedSection
+                    }
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 40)
@@ -70,9 +75,9 @@ struct PlaylistView: View {
             select(playlist)
         } label: {
             Color.clear
-                .aspectRatio(1, contentMode: .fit)
+                .aspectRatio(4 / 3, contentMode: .fit)
                 .overlay {
-                    Image(playlist.coverArt)
+                    Image.musicArtwork(named: playlist.coverArt)
                         .resizable()
                         .scaledToFill()
                 }
@@ -137,7 +142,7 @@ struct PlaylistView: View {
 
     private func songRow(_ song: Song) -> some View {
         HStack(spacing: 12) {
-            Image(song.albumArt)
+            Image.musicArtwork(named: song.albumArt)
                 .resizable()
                 .scaledToFill()
                 .frame(width: 48, height: 48)
