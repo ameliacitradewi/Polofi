@@ -53,8 +53,8 @@ struct PlaylistView: View {
                     recentlyPlayedSection
                 }
                 .padding(.horizontal, 20)
-                .padding(.top, 8)
-                .padding(.bottom, 18)
+                .padding(.top, 40)
+                .padding(.bottom, 20)
             }
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
