@@ -13,12 +13,21 @@ struct Song: Identifiable, Hashable, Codable {
     let filename: String
     let artist: String
     let duration: TimeInterval
+    let albumArt: String
     
-    init(id: UUID = UUID(), title: String, filename: String) {
+    init(
+        id: UUID = UUID(),
+        title: String,
+        filename: String,
+        artist: String = "Unknown Artist",
+        duration: TimeInterval = 0,
+        albumArt: String = "AlbumArt"
+    ) {
         self.id = id
         self.title = title
         self.filename = filename
-        self.artist = "Unknown Artist"
-        self.duration = 0
+        self.artist = artist
+        self.duration = duration
+        self.albumArt = albumArt
     }
 }
