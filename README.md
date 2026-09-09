@@ -45,7 +45,16 @@ console Xcode. Audio yang tidak ditemukan dilewati; playlist dengan lagu lain
 yang tersedia tetap muncul. Playlist tanpa audio yang tersedia disembunyikan.
 Gambar sampul dapat berupa Image Set atau Data Set yang dapat dibaca UIKit.
 
-## Verifikasi loader
+## Riwayat pemutaran
+
+Recently Played menyimpan maksimal enam lagu unik yang berhasil mulai diputar,
+baik lewat timer maupun music player. Lagu terbaru muncul paling atas; pemutaran
+ulang memindahkan lagu ke atas. Riwayat disimpan di perangkat menggunakan nama
+file audio sehingga tetap tersedia setelah aplikasi dibuka kembali. Audio timer
+tidak dihitung. Mengetuk kartu playlist memutar lagu pertamanya; mengetuk lagu
+di Recently Played memutar lagu tersebut.
+
+## Verifikasi
 
 Jalankan dari root proyek:
 
@@ -56,3 +65,10 @@ swiftc polofi/Model/Song.swift polofi/Model/Playlist.swift polofi/Model/MusicLib
 
 Opsional: berikan path hasil build `polofi.app` sebagai argumen untuk memeriksa
 bahwa CSV dan semua audio dapat dibaca dari app bundle.
+
+Verifikasi urutan, batas enam lagu, deduplikasi, dan penyimpanan riwayat:
+
+```sh
+swiftc polofi/Model/Song.swift polofi/Model/Playlist.swift polofi/Model/PlaybackHistory.swift Tests/PlaybackHistoryTests.swift -o /tmp/polofi-history-tests
+/tmp/polofi-history-tests
+```
