@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct InputView: View {
-    @State private var selectedPlaylist: Playlist? = Playlist.mockData.first
+    @State private var selectedPlaylist: Playlist? = MusicLibrary.playlists.first
     @State private var selectedHour = 2
     @State private var selectedMinute = 5
     @State private var focusSession: FocusSession?
@@ -51,7 +51,10 @@ struct InputView: View {
                     }
 
                     Picker("Select Playlist", selection: $selectedPlaylist) {
-                        ForEach(Playlist.mockData) { playlist in
+                        if MusicLibrary.playlists.isEmpty {
+                            Text("No playlists available").tag(nil as Playlist?)
+                        }
+                        ForEach(MusicLibrary.playlists) { playlist in
                             Text(playlist.name)
                                 .tag(playlist as Playlist?)
                         }

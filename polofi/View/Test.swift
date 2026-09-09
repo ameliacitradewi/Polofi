@@ -42,10 +42,10 @@ struct Test: View {
 }
 
 #Preview {
-    if let sample = Playlist.mockData.first {
+    if let sample = MusicLibrary.playlists.first {
         Test(playlist: sample)
     } else {
-        // Fallback to a minimal inline mock if mockData is empty
+        // Fallback to a minimal inline mock if the library is empty
         let fallback = Playlist(
             id: UUID(),
             name: "Sample",
