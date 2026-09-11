@@ -31,11 +31,6 @@ struct PlaylistView: View {
 
     var body: some View {
         ZStack {
-            SetBgView()
-
-            Color.black.opacity(0.18)
-                .ignoresSafeArea()
-
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 18) {
                     if playlists.isEmpty {
@@ -56,8 +51,14 @@ struct PlaylistView: View {
                 .padding(.bottom, 20)
             }
         }
+        .background {
+            SetBgView()
+                .overlay(Color.black.opacity(0.18))
+        }
         .safeAreaInset(edge: .bottom, spacing: 0) {
-            nowPlayingBar
+            NowPlayingBar(player: player) {
+                showsNowPlaying = true
+            }
         }
         .navigationTitle("Playlists")
         .navigationBarTitleDisplayMode(.inline)
@@ -172,43 +173,6 @@ struct PlaylistView: View {
         .contentShape(Rectangle())
     }
 
-    @ViewBuilder
-    private var nowPlayingBar: some View {
-        if let selectedSong = player.currentSong {
-            HStack(spacing: 12) {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(player.isPlaying ? "Now Playing:" : "Paused:")
-                        .font(.subheadline)
-                        .foregroundStyle(.white.opacity(0.85))
-
-                    Text("\(selectedSong.artist) - \(selectedSong.title)")
-                        .font(.headline)
-                        .lineLimit(1)
-                }
-
-                Spacer(minLength: 8)
-
-                Button {
-                    showsNowPlaying = true
-                } label: {
-                    Image(systemName: "chevron.up")
-                        .font(.title3.weight(.bold))
-                        .foregroundStyle(.white.opacity(0.85))
-                        .frame(width: 44, height: 44)
-                }
-                .accessibilityLabel("Open Now Playing")
-            }
-            .padding(.horizontal, 24)
-            .padding(.vertical, 17)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(.ultraThinMaterial)
-            .overlay(alignment: .top) {
-                Rectangle()
-                    .fill(Color.white.opacity(0.22))
-                    .frame(height: 1)
-            }
-        }
-    }
 
     private func select(_ playlist: Playlist) {
         selectedPlaylist = playlist

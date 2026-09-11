@@ -15,43 +15,47 @@ struct PlaylistDetailView: View {
     @State private var totalDuration: TimeInterval?
 
     var body: some View {
-        GeometryReader { geometry in
-            ScrollView(showsIndicators: false) {
-                VStack(alignment: .leading, spacing: 0) {
-                    Image.musicArtwork(named: playlist.coverArt)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: geometry.size.width, height: min(geometry.size.width * 0.95, 430))
-//                        .overlay {
-//                            LinearGradient(colors: [.black.opacity(0.4), .clear],
-//                                           startPoint: .top, endPoint: .center)
-//                        }
-                        .clipShape(UnevenRoundedRectangle(bottomLeadingRadius: 32, bottomTrailingRadius: 32))
-                        .accessibilityLabel("Cover for \(playlist.name)")
+        ZStack {
+            GeometryReader { geometry in
+                ScrollView(showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Image.musicArtwork(named: playlist.coverArt)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: geometry.size.width, height: min(geometry.size.width * 0.95, 430))
+//                            .overlay {
+//                                LinearGradient(colors: [.black.opacity(0.4), .clear],
+//                                               startPoint: .top, endPoint: .center)
+//                            }
+                            .clipShape(UnevenRoundedRectangle(bottomLeadingRadius: 32, bottomTrailingRadius: 32))
+                            .accessibilityLabel("Cover for \(playlist.name)")
 
-                    VStack(alignment: .leading, spacing: 20) {
-                        playlistInformation
+                        VStack(alignment: .leading, spacing: 20) {
+                            playlistInformation
 
-                        LazyVStack(spacing: 12) {
-                            ForEach(playlist.songs) { song in
-                                songRow(song)
+                            LazyVStack(spacing: 12) {
+                                ForEach(playlist.songs) { song in
+                                    songRow(song)
+                                }
+                            }
+
+                            if playlist.songs.isEmpty {
+                                ContentUnavailableView("No songs available", systemImage: "music.note")
                             }
                         }
-
-                        if playlist.songs.isEmpty {
-                            ContentUnavailableView("No songs available", systemImage: "music.note")
-                        }
+                        .padding(.horizontal, 20)
+                        .padding(.top, 16)
+                        .padding(.bottom, 24)
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 16)
-                    .padding(.bottom, 24)
                 }
+                .ignoresSafeArea(.container, edges: .top)
             }
-            .ignoresSafeArea(.container, edges: .top)
         }
-        .background(.black)
+        .background(Color.black)
         .safeAreaInset(edge: .bottom, spacing: 0) {
-            nowPlayingBar
+            NowPlayingBar(player: player) {
+                showsNowPlaying = true
+            }
         }
         .navigationTitle("\(playlist.name) Playlist")
         .navigationBarTitleDisplayMode(.inline)
@@ -123,39 +127,6 @@ struct PlaylistDetailView: View {
         .buttonStyle(.plain)
     }
 
-    @ViewBuilder
-    private var nowPlayingBar: some View {
-        if let song = player.currentSong {
-            HStack(spacing: 12) {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(player.isPlaying ? "Now Playing:" : "Paused:")
-                        .font(.subheadline)
-                        .foregroundStyle(.white.opacity(0.85))
-                    Text("\(song.artist) - \(song.title)")
-                        .font(.headline)
-                        .foregroundStyle(.white)
-                        .lineLimit(1)
-                }
-                Spacer(minLength: 8)
-                Button {
-                    showsNowPlaying = true
-                } label: {
-                    Image(systemName: "chevron.up")
-                        .font(.title3.weight(.bold))
-                        .foregroundStyle(.white.opacity(0.85))
-                        .frame(width: 44, height: 44)
-                }
-                .accessibilityLabel("Open Now Playing")
-            }
-            .padding(.horizontal, 24)
-            .padding(.vertical, 17)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(.ultraThinMaterial)
-            .overlay(alignment: .top) {
-                Rectangle().fill(.white.opacity(0.22)).frame(height: 1)
-            }
-        }
-    }
 
     private func loadTotalDuration() async {
         var total: TimeInterval = 0
