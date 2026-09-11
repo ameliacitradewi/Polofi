@@ -30,6 +30,23 @@ final class SongsPlayViewModel: NSObject, ObservableObject {
     var currentSongTitle: String {
         currentSong?.title ?? "No songs available"
     }
+    
+    var currentSongArtist: String {
+        currentSong?.artist ?? "Unknown"
+    }
+    
+    var displaySong: String {
+        "\(currentSongArtist) - \(currentSongTitle)"
+    }
+
+    var currentTime: TimeInterval { audioPlayer?.currentTime ?? 0 }
+    var duration: TimeInterval { audioPlayer?.duration ?? 0 }
+
+    func seek(to time: TimeInterval) {
+        guard time.isFinite, let audioPlayer else { return }
+        audioPlayer.currentTime = min(max(time, 0), audioPlayer.duration)
+        objectWillChange.send()
+    }
 
     init(playlist: Playlist, history: PlaybackHistory? = nil) {
         self.playlist = playlist
@@ -153,15 +170,21 @@ final class SongsPlayViewModel: NSObject, ObservableObject {
     }
 
     private func playTimerEndSound() {
+        configureAudioSession()
         guard let url = audioURL(for: Self.timerEndSoundFilename) else {
             print("Timer end sound not found: \(Self.timerEndSoundFilename)")
             return
         }
 
         do {
-            timerEndPlayer = try AVAudioPlayer(contentsOf: url)
-            timerEndPlayer?.prepareToPlay()
-            timerEndPlayer?.play()
+            let player = try AVAudioPlayer(contentsOf: url)
+            player.numberOfLoops = 0
+            player.volume = 1
+            player.prepareToPlay()
+            timerEndPlayer = player
+            if !player.play() {
+                print("Failed to start timer end sound: \(Self.timerEndSoundFilename)")
+            }
         } catch {
             print("Failed to play timer end sound: \(error.localizedDescription)")
         }

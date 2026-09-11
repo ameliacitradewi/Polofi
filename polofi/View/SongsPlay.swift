@@ -9,14 +9,15 @@ import SwiftUI
 
 struct SongsPlay: View {
     @ObservedObject var viewModel: SongsPlayViewModel
-    @State private var isControlsVisible = true
+    @State private var showsPlaylists = false
+    @State private var hasStartedPlayback = false
 
     init(viewModel: SongsPlayViewModel) {
         self._viewModel = ObservedObject(wrappedValue: viewModel)
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 5) {
             HStack(alignment: .center, spacing: 12) {
                 Text(viewModel.playlist.name)
                     .font(.headline)
@@ -27,11 +28,9 @@ struct SongsPlay: View {
                 Spacer(minLength: 8)
 
                 Button {
-                    withAnimation(.easeInOut(duration: 0.2)) {
-                        isControlsVisible.toggle()
-                    }
+                    showsPlaylists = true
                 } label: {
-                    Image(systemName: isControlsVisible ? "chevron.up" : "chevron.down")
+                    Image(systemName: "chevron.up")
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(.black)
                         .frame(width: 32, height: 32)
@@ -41,36 +40,34 @@ struct SongsPlay: View {
                         }
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel(isControlsVisible ? "Hide playback controls" : "Show playback controls")
+                .accessibilityLabel("Open Playlists")
             }
 
-            if isControlsVisible {
-                HStack(alignment: .center, spacing: 0) {
-                    Button {
-                        viewModel.playPreviousSong()
-                    } label: {
-                        Image(systemName: "backward.fill")
-                            .font(.title3)
-                            .frame(minWidth: 44, minHeight: 44)
-                            .contentShape(Rectangle())
-                    }
-                    .disabled(viewModel.currentSongIndex == 0 || viewModel.playlist.songs.isEmpty)
-
-                    MarqueeView(text: viewModel.currentSongTitle, font: .headline)
-                        .frame(minWidth: 0, maxWidth: .infinity)
-
-                    Button {
-                        viewModel.playNextSong()
-                    } label: {
-                        Image(systemName: "forward.fill")
-                            .font(.title3)
-                            .frame(minWidth: 44, minHeight: 44)
-                            .contentShape(Rectangle())
-                    }
-                    .disabled(viewModel.playlist.songs.isEmpty)
+            HStack(alignment: .center, spacing: 0) {
+                Button {
+                    viewModel.playPreviousSong()
+                } label: {
+                    Image(systemName: "backward.fill")
+                        .font(.title3)
+                        .frame(minWidth: 44, minHeight: 44)
+                        .contentShape(Rectangle())
                 }
-                .foregroundColor(.black)
+                .disabled(viewModel.currentSongIndex == 0 || viewModel.playlist.songs.isEmpty)
+
+                MarqueeView(text: viewModel.displaySong, font: .headline)
+                    .frame(minWidth: 0, maxWidth: .infinity)
+
+                Button {
+                    viewModel.playNextSong()
+                } label: {
+                    Image(systemName: "forward.fill")
+                        .font(.title3)
+                        .frame(minWidth: 44, minHeight: 44)
+                        .contentShape(Rectangle())
+                }
+                .disabled(viewModel.playlist.songs.isEmpty)
             }
+            .foregroundColor(.black)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 14)
@@ -81,10 +78,19 @@ struct SongsPlay: View {
                 .shadow(color: .black.opacity(0.08), radius: 10, x: 0, y: 4)
         }
         .onAppear {
-            viewModel.startPlaybackIfNeeded()
+            if !hasStartedPlayback {
+                viewModel.startPlaybackIfNeeded()
+                hasStartedPlayback = true
+            }
         }
         .onDisappear {
-            viewModel.stop()
+            if !showsPlaylists {
+                viewModel.stop()
+                hasStartedPlayback = false
+            }
+        }
+        .navigationDestination(isPresented: $showsPlaylists) {
+            PlaylistView(player: viewModel)
         }
     }
 }
@@ -103,9 +109,11 @@ struct SongsPlayHost: View {
 }
 
 #Preview {
-    if let playlist = MusicLibrary.playlists.first {
-        SongsPlayHost(playlist: playlist)
-            .padding()
-            .background(Color.gray.opacity(0.3))
+    NavigationStack {
+        if let playlist = MusicLibrary.playlists.first {
+            SongsPlayHost(playlist: playlist)
+                .padding()
+                .background(Color.gray.opacity(0.3))
+        }
     }
 }

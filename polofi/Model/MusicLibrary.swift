@@ -25,26 +25,34 @@ enum MusicLibrary {
                 return exists
             }
             guard !availableSongs.isEmpty else { return nil }
-            return Playlist(id: playlist.id, name: playlist.name, songs: availableSongs, coverArt: playlist.coverArt)
+            return Playlist(id: playlist.id, name: playlist.name, songs: availableSongs,
+                            coverArt: playlist.coverArt, description: playlist.description)
         }
     }
 
     static func parse(_ csv: String) throws -> [Playlist] {
         let rows = try CSVReader.rows(from: csv)
         let headers = ["playlist", "coverArt", "title", "filename", "artist", "albumArt"]
-        guard let header = rows.first, header == headers else {
-            throw LibraryError("music.csv must begin with: \(headers.joined(separator: ","))")
+        guard let header = rows.first, header == headers || header == headers + ["playlistDesc"] else {
+            throw LibraryError("music.csv must begin with: \(headers.joined(separator: ",")), optionally followed by playlistDesc")
         }
 
         var names: [String] = []
         var covers: [String: String] = [:]
+        var descriptions: [String: String] = [:]
         var songs: [String: [Song]] = [:]
         for (index, row) in rows.dropFirst().enumerated() {
-            guard row.count == headers.count else {
-                throw LibraryError("CSV record \(index + 2) must contain \(headers.count) fields.")
+            guard row.count == header.count else {
+                throw LibraryError("CSV record \(index + 2) must contain \(header.count) fields.")
             }
             let name = row[0]
             let cover = row[1].isEmpty ? "Cover1" : row[1]
+            if header.count == 7, !row[6].isEmpty {
+                if let existing = descriptions[name], existing != row[6] {
+                    throw LibraryError("Playlist \(name) has conflicting playlistDesc values.")
+                }
+                descriptions[name] = row[6]
+            }
             guard !name.isEmpty, !row[2].isEmpty, !row[3].isEmpty else {
                 throw LibraryError("CSV record \(index + 2) needs a playlist, title, and filename.")
             }
@@ -65,7 +73,10 @@ enum MusicLibrary {
                 albumArt: row[5].isEmpty ? "AlbumArt" : row[5]
             ))
         }
-        return names.map { Playlist(name: $0, songs: songs[$0] ?? [], coverArt: covers[$0] ?? "Cover1") }
+        return names.map {
+            Playlist(name: $0, songs: songs[$0] ?? [], coverArt: covers[$0] ?? "Cover1",
+                     description: descriptions[$0] ?? "")
+        }
     }
 }
 
