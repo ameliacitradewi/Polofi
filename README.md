@@ -11,7 +11,7 @@ di satu playlist. Semua layar menggunakan katalog yang sama.
 2. Tambahkan baris ke `polofi/Resources/music.csv`, contohnya:
 
    ```csv
-   Calm,Cover1,Rainy Evening,Artist-Rainy Evening.mp3,Artist,AlbumArt
+   Calm,CalmCover,Rainy Evening,Artist-Rainy Evening.mp3,Artist,AlbumArt,
    ```
 
 3. Gunakan nama playlist yang sudah ada untuk menambah lagunya, atau nama baru
@@ -32,6 +32,7 @@ Kolom CSV (pertahankan header dan urutannya):
 | `filename` | Nama file audio lengkap dengan ekstensi, harus cocok persis dengan file dalam bundle. |
 | `artist` | Nama artis. Kosong = `Unknown Artist`. |
 | `albumArt` | Nama gambar di Assets, tanpa ekstensi. Kosong = `AlbumArt`. |
+| `playlistDesc` | Deskripsi playlist. Dapat diisi pada satu atau beberapa baris dalam playlist yang sama; nilai yang diisi harus sama. Kosong = deskripsi disembunyikan. |
 
 Simpan sebagai CSV UTF-8 dengan pemisah koma atau titik koma (`;`). Pemisah dideteksi dari header. Teks berisi karakter pemisah harus diapit tanda
 kutip, misalnya `"Rain, Again"`. Tanda kutip dalam teks ditulis dua kali:
@@ -51,8 +52,11 @@ Recently Played menyimpan maksimal enam lagu unik yang berhasil mulai diputar,
 baik lewat timer maupun music player. Lagu terbaru muncul paling atas; pemutaran
 ulang memindahkan lagu ke atas. Riwayat disimpan di perangkat menggunakan nama
 file audio sehingga tetap tersedia setelah aplikasi dibuka kembali. Audio timer
-tidak dihitung. Mengetuk kartu playlist memutar lagu pertamanya; mengetuk lagu
-di Recently Played memutar lagu tersebut.
+tidak dihitung. Mengetuk kartu playlist membuka detail playlist; mengetuk lagu
+di detail playlist atau Recently Played memutar lagu tersebut. Detail menampilkan
+sampul, deskripsi dari `playlistDesc`, jumlah lagu, dan total durasi yang dibaca dari file audio. Ikon
+waveform hanya muncul pada lagu yang sedang diputar. Chevron pada bar Now Playing
+membuka halaman pemutar dengan player yang sama.
 
 ## Verifikasi
 

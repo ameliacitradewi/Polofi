@@ -49,6 +49,10 @@ final class TimerViewModel: ObservableObject {
 
     func startTimer() {
         countdownTimer?.invalidate()
+        guard remainingTime > 0 else {
+            countdownTimer = nil
+            return
+        }
         countdownTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] timer in
             guard let self else {
                 timer.invalidate()
@@ -67,9 +71,11 @@ final class TimerViewModel: ObservableObject {
             return
         }
 
-        remainingTime -= 1
+        remainingTime = max(0, remainingTime - 1)
 
         if remainingTime == 0 {
+            countdownTimer?.invalidate()
+            countdownTimer = nil
             songsViewModel.pauseWhenTimerEnds()
         }
     }

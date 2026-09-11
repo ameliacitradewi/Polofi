@@ -15,7 +15,15 @@ struct PlaylistView: View {
     ]
 
     @ObservedObject private var history = PlaybackHistory.shared
-    @StateObject private var player = SongsPlayViewModel(playlist: Playlist(name: "", songs: []))
+    @StateObject private var player: SongsPlayViewModel
+    @State private var showsNowPlaying = false
+    @State private var selectedPlaylist: Playlist?
+    private let ownsPlayback: Bool
+
+    init(player: SongsPlayViewModel? = nil) {
+        ownsPlayback = player == nil
+        _player = StateObject(wrappedValue: player ?? SongsPlayViewModel(playlist: Playlist(name: "", songs: [])))
+    }
 
     private var recentlyPlayedSongs: [Song] {
         history.songs(in: playlists)
@@ -54,7 +62,15 @@ struct PlaylistView: View {
         .navigationTitle("Playlists")
         .navigationBarTitleDisplayMode(.inline)
         .preferredColorScheme(.dark)
-        .onDisappear { player.stop() }
+        .navigationDestination(isPresented: $showsNowPlaying) {
+            NowPlayingView(player: player)
+        }
+        .navigationDestination(item: $selectedPlaylist) { playlist in
+            PlaylistDetailView(playlist: playlist, player: player)
+        }
+        .onDisappear {
+            if ownsPlayback && !showsNowPlaying && selectedPlaylist == nil { player.stop() }
+        }
     }
 
     private func playlistCard(_ playlist: Playlist) -> some View {
@@ -173,14 +189,14 @@ struct PlaylistView: View {
                 Spacer(minLength: 8)
 
                 Button {
-                    player.togglePlayback()
+                    showsNowPlaying = true
                 } label: {
-                    Image(systemName: player.isPlaying ? "pause.fill" : "play.fill")
+                    Image(systemName: "chevron.up")
                         .font(.title3.weight(.bold))
                         .foregroundStyle(.white.opacity(0.85))
                         .frame(width: 44, height: 44)
                 }
-                .accessibilityLabel(player.isPlaying ? "Pause" : "Play")
+                .accessibilityLabel("Open Now Playing")
             }
             .padding(.horizontal, 24)
             .padding(.vertical, 17)
@@ -195,7 +211,7 @@ struct PlaylistView: View {
     }
 
     private func select(_ playlist: Playlist) {
-        player.play(playlist)
+        selectedPlaylist = playlist
     }
 }
 

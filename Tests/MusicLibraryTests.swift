@@ -23,6 +23,13 @@ struct MusicLibraryTests {
             + "Calm;Cover1;\"Rain; Again, Tonight\";rain.mp3;Artist;AlbumArt\r\n")
         precondition(semicolon[0].songs[0].title == "Rain; Again, Tonight")
 
+        let descriptionHeader = "playlist;coverArt;title;filename;artist;albumArt;playlistDesc\n"
+        let described = try MusicLibrary.parse(descriptionHeader
+            + "Study;StudyCover;First;first.mp3;Artist;AlbumArt;\n"
+            + "Study;StudyCover;Second;second.mp3;Artist;AlbumArt;\"Focus; steady rhythms.\"\n")
+        precondition(described[0].description == "Focus; steady rhythms.")
+        precondition(expanded[0].description.isEmpty)
+
         let quoted = try MusicLibrary.parse("\u{FEFF}" + header.replacingOccurrences(of: "\n", with: "\r\n") + "\r\nCalm,,\"Rain, \"\"Again\"\"\r\nTonight\",rain.mp3,,\r\n")
         precondition(quoted[0].songs[0].title == "Rain, \"Again\"\nTonight")
         precondition(quoted[0].coverArt == "Cover1")
@@ -47,6 +54,7 @@ struct MusicLibraryTests {
             header + "Calm,,Tr\"ack,track.mp3,,\n",
             header + "Calm,,Track,same.mp3,,\nCalm,,Track,same.mp3,,\n",
             header + "Calm,Cover1,First,first.mp3,,\nCalm,Cover2,Second,second.mp3,,\n",
+            descriptionHeader + "Study;;First;first.mp3;;;First description\nStudy;;Second;second.mp3;;;Different description\n",
         ] {
             do {
                 _ = try MusicLibrary.parse(invalid)
@@ -72,6 +80,7 @@ struct MusicLibraryTests {
             guard let bundle = Bundle(path: path) else { fatalError("Invalid app bundle: \(path)") }
             let bundled = try MusicLibrary.load(bundle: bundle)
             precondition(bundled.map(\.name) == playlists.map(\.name))
+            precondition(bundled.map(\.description) == playlists.map(\.description))
             precondition(bundled.flatMap(\.songs).map(\.filename) == playlists.flatMap(\.songs).map(\.filename))
             print("App bundle: CSV and all audio files verified.")
         }

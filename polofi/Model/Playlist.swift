@@ -12,16 +12,19 @@ struct Playlist: Identifiable, Hashable, Codable {
     let name: String
     let songs: [Song]
     let coverArt: String
+    let description: String
     
     init(
         id: UUID = UUID(),
         name: String,
         songs: [Song],
-        coverArt: String = "Cover1"
+        coverArt: String = "Cover1",
+        description: String = ""
     ) {
         self.id = id
         self.name = name
         self.songs = songs
         self.coverArt = coverArt
+        self.description = description
     }
 }
