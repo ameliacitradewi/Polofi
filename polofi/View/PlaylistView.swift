@@ -14,25 +14,11 @@ struct PlaylistView: View {
         GridItem(.flexible(minimum: 0), spacing: 12),
     ]
 
-    @State private var selectedPlaylistID = MusicLibrary.playlists.first?.id
-    @State private var selectedSongID = MusicLibrary.playlists.first?.songs.first?.id
-
-    private var selectedPlaylist: Playlist? {
-        playlists.first { $0.id == selectedPlaylistID } ?? playlists.first
-    }
-
-    private var selectedSong: Song? {
-        if let song = playlists
-            .flatMap(\.songs)
-            .first(where: { $0.id == selectedSongID }) {
-            return song
-        }
-
-        return selectedPlaylist?.songs.first
-    }
+    @ObservedObject private var history = PlaybackHistory.shared
+    @StateObject private var player = SongsPlayViewModel(playlist: Playlist(name: "", songs: []))
 
     private var recentlyPlayedSongs: [Song] {
-        Array(playlists.flatMap(\.songs).prefix(6))
+        history.songs(in: playlists)
     }
 
     var body: some View {
@@ -68,6 +54,7 @@ struct PlaylistView: View {
         .navigationTitle("Playlists")
         .navigationBarTitleDisplayMode(.inline)
         .preferredColorScheme(.dark)
+        .onDisappear { player.stop() }
     }
 
     private func playlistCard(_ playlist: Playlist) -> some View {
@@ -103,7 +90,7 @@ struct PlaylistView: View {
                 }
                 .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                 .overlay {
-                    if selectedPlaylistID == playlist.id {
+                    if player.playlist.id == playlist.id {
                         RoundedRectangle(cornerRadius: 12, style: .continuous)
                             .stroke(Color.white.opacity(0.85), lineWidth: 2)
                     }
@@ -123,9 +110,8 @@ struct PlaylistView: View {
 
             ForEach(recentlyPlayedSongs) { song in
                 Button {
-                    selectedSongID = song.id
                     if let playlist = playlists.first(where: { $0.songs.contains(song) }) {
-                        selectedPlaylistID = playlist.id
+                        player.play(playlist, startingAt: song)
                     }
                 } label: {
                     songRow(song)
@@ -161,7 +147,7 @@ struct PlaylistView: View {
 
             Spacer(minLength: 8)
 
-            if selectedSongID == song.id {
+            if player.isPlaying && player.currentSong?.filename == song.filename {
                 Image(systemName: "waveform")
                     .font(.title3.weight(.medium))
                     .accessibilityLabel("Now playing")
@@ -172,10 +158,10 @@ struct PlaylistView: View {
 
     @ViewBuilder
     private var nowPlayingBar: some View {
-        if let selectedSong {
+        if let selectedSong = player.currentSong {
             HStack(spacing: 12) {
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("Now Playing:")
+                    Text(player.isPlaying ? "Now Playing:" : "Paused:")
                         .font(.subheadline)
                         .foregroundStyle(.white.opacity(0.85))
 
@@ -186,9 +172,15 @@ struct PlaylistView: View {
 
                 Spacer(minLength: 8)
 
-                Image(systemName: "chevron.up")
-                    .font(.title3.weight(.bold))
-                    .foregroundStyle(.white.opacity(0.85))
+                Button {
+                    player.togglePlayback()
+                } label: {
+                    Image(systemName: player.isPlaying ? "pause.fill" : "play.fill")
+                        .font(.title3.weight(.bold))
+                        .foregroundStyle(.white.opacity(0.85))
+                        .frame(width: 44, height: 44)
+                }
+                .accessibilityLabel(player.isPlaying ? "Pause" : "Play")
             }
             .padding(.horizontal, 24)
             .padding(.vertical, 17)
@@ -203,8 +195,7 @@ struct PlaylistView: View {
     }
 
     private func select(_ playlist: Playlist) {
-        selectedPlaylistID = playlist.id
-        selectedSongID = playlist.songs.first?.id
+        player.play(playlist)
     }
 }
 

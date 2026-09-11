@@ -16,19 +16,41 @@ final class SongsPlayViewModel: NSObject, ObservableObject {
 
     private static let timerEndSoundFilename = "ding.mp3"
 
-    let playlist: Playlist
+    @Published private(set) var playlist: Playlist
+    private let history: PlaybackHistory
     private var audioPlayer: AVAudioPlayer?
     private var timerEndPlayer: AVAudioPlayer?
     private var suppressAutoAdvance = false
 
-    var currentSongTitle: String {
-        guard !playlist.songs.isEmpty else { return "No songs available" }
-        return playlist.songs[currentSongIndex].title
+    var currentSong: Song? {
+        guard playlist.songs.indices.contains(currentSongIndex) else { return nil }
+        return playlist.songs[currentSongIndex]
     }
 
-    init(playlist: Playlist) {
+    var currentSongTitle: String {
+        currentSong?.title ?? "No songs available"
+    }
+
+    init(playlist: Playlist, history: PlaybackHistory? = nil) {
         self.playlist = playlist
+        self.history = history ?? .shared
         super.init()
+    }
+
+    func play(_ playlist: Playlist, startingAt song: Song? = nil) {
+        guard !playlist.songs.isEmpty else { return }
+        let index: Int
+        if let song {
+            guard let match = playlist.songs.firstIndex(where: { $0.filename == song.filename }) else { return }
+            index = match
+        } else {
+            index = 0
+        }
+        stop()
+        audioPlayer = nil
+        self.playlist = playlist
+        currentSongIndex = index
+        playCurrentSong()
     }
 
     func startPlaybackIfNeeded() {
@@ -41,8 +63,9 @@ final class SongsPlayViewModel: NSObject, ObservableObject {
 
         if let player = audioPlayer {
             if !player.isPlaying {
-                player.play()
-                isPlaying = true
+                suppressAutoAdvance = false
+                isPlaying = player.play()
+                if isPlaying, let currentSong { history.record(currentSong) }
             }
             return
         }
@@ -81,6 +104,10 @@ final class SongsPlayViewModel: NSObject, ObservableObject {
         }
 
         configureAudioSession()
+        suppressAutoAdvance = false
+        audioPlayer?.stop()
+        audioPlayer = nil
+        isPlaying = false
 
         let song = playlist.songs[currentSongIndex]
 
@@ -94,8 +121,8 @@ final class SongsPlayViewModel: NSObject, ObservableObject {
             audioPlayer = try AVAudioPlayer(contentsOf: url)
             audioPlayer?.delegate = self
             audioPlayer?.prepareToPlay()
-            audioPlayer?.play()
-            isPlaying = true
+            isPlaying = audioPlayer?.play() == true
+            if isPlaying { history.record(song) }
         } catch {
             isPlaying = false
             print("Failed to play audio: \(error.localizedDescription)")
@@ -103,9 +130,19 @@ final class SongsPlayViewModel: NSObject, ObservableObject {
     }
 
     func stop() {
+        suppressAutoAdvance = true
         audioPlayer?.stop()
         timerEndPlayer?.stop()
         isPlaying = false
+    }
+
+    func togglePlayback() {
+        if isPlaying {
+            audioPlayer?.pause()
+            isPlaying = false
+        } else {
+            startPlaybackIfNeeded()
+        }
     }
 
     func pauseWhenTimerEnds() {
@@ -147,7 +184,7 @@ final class SongsPlayViewModel: NSObject, ObservableObject {
 extension SongsPlayViewModel: AVAudioPlayerDelegate {
     nonisolated func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         Task { @MainActor in
-            guard !suppressAutoAdvance else { return }
+            guard flag, player === audioPlayer, !suppressAutoAdvance else { return }
             playNextSong()
         }
     }
