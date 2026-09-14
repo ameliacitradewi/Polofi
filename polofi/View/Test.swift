@@ -33,7 +33,7 @@ struct Test: View {
                         .frame(maxWidth: geo.size.width)
                 }
                 .frame(maxWidth: geo.size.width)
-                .foregroundColor(.white)
+                .foregroundColor(.primary)
             }
         }
         

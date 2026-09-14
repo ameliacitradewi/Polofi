@@ -53,7 +53,7 @@ struct PlaylistView: View {
         }
         .background {
             SetBgView()
-                .overlay(Color.black.opacity(0.18))
+                .overlay(Color(uiColor: .systemBackground).opacity(0.18))
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
             NowPlayingBar(player: player) {
@@ -62,7 +62,7 @@ struct PlaylistView: View {
         }
         .navigationTitle("Playlists")
         .navigationBarTitleDisplayMode(.inline)
-        .preferredColorScheme(.dark)
+        .tint(.primary)
         .navigationDestination(isPresented: $showsNowPlaying) {
             NowPlayingView(player: player)
         }
@@ -87,7 +87,7 @@ struct PlaylistView: View {
                 }
                 .overlay {
                     LinearGradient(
-                        colors: [.clear, .black.opacity(0.85)],
+                        colors: [Color(uiColor: .systemBackground).opacity(0.15), Color(uiColor: .systemBackground).opacity(0.95)],
                         startPoint: .center,
                         endPoint: .bottom
                     )
@@ -96,11 +96,12 @@ struct PlaylistView: View {
                     VStack(alignment: .leading, spacing: 0) {
                         Text(playlist.name)
                             .font(.title3.bold())
+                            .foregroundStyle(.primary)
                             .lineLimit(1)
 
                         Text("\(playlist.songs.count) songs")
                             .font(.subheadline)
-                            .foregroundStyle(.white.opacity(0.9))
+                            .foregroundStyle(Color.primary.opacity(0.9))
                     }
                     .padding(12)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -109,7 +110,7 @@ struct PlaylistView: View {
                 .overlay {
                     if player.playlist.id == playlist.id {
                         RoundedRectangle(cornerRadius: 12, style: .continuous)
-                            .stroke(Color.white.opacity(0.85), lineWidth: 2)
+                            .stroke(Color.primary.opacity(0.85), lineWidth: 2)
                     }
                 }
                 .shadow(color: .black.opacity(0.28), radius: 7, y: 4)
@@ -123,7 +124,7 @@ struct PlaylistView: View {
         VStack(alignment: .leading, spacing: 14) {
             Text("Recently Played")
                 .font(.title3.weight(.medium))
-                .foregroundStyle(.white.opacity(0.78))
+                .foregroundStyle(Color.primary.opacity(0.78))
 
             ForEach(recentlyPlayedSongs) { song in
                 Button {
@@ -138,7 +139,7 @@ struct PlaylistView: View {
         }
         .padding(18)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.black.opacity(0.78))
+        .background(Color(uiColor: .systemBackground).opacity(0.78))
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         .shadow(color: .black.opacity(0.3), radius: 10, y: 5)
     }
@@ -158,7 +159,7 @@ struct PlaylistView: View {
 
                 Text(song.artist)
                     .font(.subheadline)
-                    .foregroundStyle(.white.opacity(0.85))
+                    .foregroundStyle(Color.primary.opacity(0.85))
                     .lineLimit(1)
             }
 
@@ -179,8 +180,20 @@ struct PlaylistView: View {
     }
 }
 
-#Preview {
-    NavigationStack {
-        PlaylistView()
+#Preview("PlaylistView · Light") {
+    Group {
+        NavigationStack {
+            PlaylistView()
+        }
     }
+    .preferredColorScheme(.light)
+}
+
+#Preview("PlaylistView · Dark") {
+    Group {
+        NavigationStack {
+            PlaylistView()
+        }
+    }
+    .preferredColorScheme(.dark)
 }

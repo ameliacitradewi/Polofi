@@ -18,10 +18,11 @@ struct NowPlayingBar: View {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(player.isPlaying ? "Now Playing:" : "Paused:")
                         .font(.subheadline)
-                        .foregroundStyle(.white.opacity(0.85))
+                        .foregroundStyle(Color.primary.opacity(0.85))
 
                     Text("\(selectedSong.artist) - \(selectedSong.title)")
                         .font(.headline)
+                        .foregroundStyle(.primary)
                         .lineLimit(2)
                 }
 
@@ -32,7 +33,7 @@ struct NowPlayingBar: View {
                 } label: {
                     Image(systemName: "chevron.up")
                         .font(.title3.weight(.bold))
-                        .foregroundStyle(.white.opacity(0.85))
+                        .foregroundStyle(Color.primary.opacity(0.85))
                         .frame(width: 44, height: 44)
                 }
                 .accessibilityLabel("Open Now Playing")
@@ -45,26 +46,49 @@ struct NowPlayingBar: View {
             .background(.ultraThinMaterial)
             .overlay(alignment: .top) {
                 Rectangle()
-                    .fill(Color.white.opacity(0.22))
+                    .fill(Color.primary.opacity(0.22))
                     .frame(height: 1)
             }
         }
     }
 }
 
-#Preview("Now Playing Bar", traits: .sizeThatFitsLayout) {
-    NowPlayingBar(
-        player: SongsPlayViewModel(playlist: Playlist(
-            name: "Study",
-            songs: [Song(
-                title: "September Rain",
-                filename: "Hoffy Beats - September Rain (freetouse.com).mp3",
-                artist: "Hoffy Beats"
-            )]
-        )),
-        onOpen: {}
-    )
-    .frame(width: 402)
-    .background(.black)
+#Preview("NowPlayingBar · Light", traits: .sizeThatFitsLayout) {
+    Group {
+        NowPlayingBar(
+            player: SongsPlayViewModel(playlist: Playlist(
+                name: "Study",
+                songs: [Song(
+                    title: "September Rain",
+                    filename: "Hoffy Beats - September Rain (freetouse.com).mp3",
+                    artist: "Hoffy Beats"
+                )]
+            )),
+            onOpen: {}
+        )
+        .frame(width: 402)
+        .background(Color(uiColor: .systemBackground))
+
+    }
+    .preferredColorScheme(.light)
+}
+
+#Preview("NowPlayingBar · Dark", traits: .sizeThatFitsLayout) {
+    Group {
+        NowPlayingBar(
+            player: SongsPlayViewModel(playlist: Playlist(
+                name: "Study",
+                songs: [Song(
+                    title: "September Rain",
+                    filename: "Hoffy Beats - September Rain (freetouse.com).mp3",
+                    artist: "Hoffy Beats"
+                )]
+            )),
+            onOpen: {}
+        )
+        .frame(width: 402)
+        .background(Color(uiColor: .systemBackground))
+
+    }
     .preferredColorScheme(.dark)
 }

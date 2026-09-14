@@ -68,9 +68,10 @@ struct InputView: View {
                 }
                 .padding()
                 .frame(width: geo.size.width * 0.8)
-                .background(Color.white.opacity(0.95)).cornerRadius(30)
+                .background(Color(uiColor: .secondarySystemBackground).opacity(0.95)).cornerRadius(30)
             }
         }
+        .tint(.primary)
         .navigationDestination(item: $focusSession) { session in
             TimerView(playlist: session.playlist, duration: session.duration)
         }
@@ -87,8 +88,20 @@ private struct FocusSession: Identifiable, Hashable {
     let duration: TimeInterval
 }
 
-#Preview {
-    NavigationStack {
-        InputView()
+#Preview("InputView · Light") {
+    Group {
+        NavigationStack {
+            InputView()
+        }
     }
+    .preferredColorScheme(.light)
+}
+
+#Preview("InputView · Dark") {
+    Group {
+        NavigationStack {
+            InputView()
+        }
+    }
+    .preferredColorScheme(.dark)
 }
