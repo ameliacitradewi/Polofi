@@ -60,9 +60,22 @@ struct TimerView: View {
     }
 }
 
-#Preview("Timer View") {
-    TimerView(
-        playlist: MusicLibrary.playlists.first ?? Playlist(id: UUID(), name: "Sample", songs: []),
-        duration: 125
-    )
+#Preview("TimerView · Light") {
+    Group {
+        TimerView(
+            playlist: MusicLibrary.playlists.first ?? Playlist(id: UUID(), name: "Sample", songs: []),
+            duration: 125
+        )
+    }
+    .preferredColorScheme(.light)
+}
+
+#Preview("TimerView · Dark") {
+    Group {
+        TimerView(
+            playlist: MusicLibrary.playlists.first ?? Playlist(id: UUID(), name: "Sample", songs: []),
+            duration: 125
+        )
+    }
+    .preferredColorScheme(.dark)
 }

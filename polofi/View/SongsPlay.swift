@@ -22,7 +22,7 @@ struct SongsPlay: View {
                 Text(viewModel.playlist.name)
                     .font(.headline)
                     .fontWeight(.semibold)
-                    .foregroundStyle(.black)
+                    .foregroundStyle(.primary)
                     .lineLimit(1)
 
                 Spacer(minLength: 8)
@@ -32,7 +32,7 @@ struct SongsPlay: View {
                 } label: {
                     Image(systemName: "chevron.up")
                         .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.black)
+                        .foregroundStyle(.primary)
                         .frame(width: 32, height: 32)
                         .background {
                             Circle()
@@ -67,14 +67,14 @@ struct SongsPlay: View {
                 }
                 .disabled(viewModel.playlist.songs.isEmpty)
             }
-            .foregroundColor(.black)
+            .foregroundColor(.primary)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 14)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background {
             RoundedRectangle(cornerRadius: 28, style: .continuous)
-                .fill(Color.white.opacity(0.94))
+                .fill(Color(uiColor: .secondarySystemBackground).opacity(0.94))
                 .shadow(color: .black.opacity(0.08), radius: 10, x: 0, y: 4)
         }
         .onAppear {
@@ -108,12 +108,28 @@ struct SongsPlayHost: View {
     }
 }
 
-#Preview {
-    NavigationStack {
-        if let playlist = MusicLibrary.playlists.first {
-            SongsPlayHost(playlist: playlist)
-                .padding()
-                .background(Color.gray.opacity(0.3))
+#Preview("SongsPlay · Light") {
+    Group {
+        NavigationStack {
+            if let playlist = MusicLibrary.playlists.first {
+                SongsPlayHost(playlist: playlist)
+                    .padding()
+                    .background(Color.gray.opacity(0.3))
+            }
         }
     }
+    .preferredColorScheme(.light)
+}
+
+#Preview("SongsPlay · Dark") {
+    Group {
+        NavigationStack {
+            if let playlist = MusicLibrary.playlists.first {
+                SongsPlayHost(playlist: playlist)
+                    .padding()
+                    .background(Color.gray.opacity(0.3))
+            }
+        }
+    }
+    .preferredColorScheme(.dark)
 }

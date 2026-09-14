@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct NowPlayingView: View {
+    @Environment(\.colorScheme) private var colorScheme
     @ObservedObject var player: SongsPlayViewModel
     @State private var scrubFraction: Double?
 
@@ -23,11 +24,11 @@ struct NowPlayingView: View {
                             VStack(alignment: .leading, spacing: 5) {
                                 Text(song.title)
                                     .font(.title2.bold())
-                                    .foregroundStyle(.white)
+                                    .foregroundStyle(.primary)
                                     .fixedSize(horizontal: false, vertical: true)
                                 Text(song.artist)
                                     .font(.subheadline)
-                                    .foregroundStyle(.white.opacity(0.45))
+                                    .foregroundStyle(.secondary)
                             }
 
                             playbackProgress
@@ -44,13 +45,11 @@ struct NowPlayingView: View {
                 }
             }
         }
-        .background(.black)
+        .background(Color(uiColor: .systemBackground))
         .navigationTitle("Now Playing")
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(.hidden, for: .navigationBar)
-        .toolbarColorScheme(.dark, for: .navigationBar)
-        .preferredColorScheme(.dark)
-        .tint(.white)
+        .tint(.primary)
         .onChange(of: player.currentSong?.id) { _, _ in scrubFraction = nil }
     }
 
@@ -62,7 +61,7 @@ struct NowPlayingView: View {
                 .frame(width: width * 0.85, height: width * 0.85)
                 .clipped()
                 .blur(radius: 55)
-                .opacity(0.65)
+                .opacity(colorScheme == .dark ? 0.65 : 0.35)
 
             Image.musicArtwork(named: song.albumArt)
                 .resizable()
@@ -116,7 +115,7 @@ struct NowPlayingView: View {
                     Text(Self.timeLabel(duration))
                 }
                 .font(.footnote.monospacedDigit())
-                .foregroundStyle(.white.opacity(0.75))
+                .foregroundStyle(Color.primary.opacity(0.75))
                 .accessibilityHidden(true)
             }
         }
@@ -137,11 +136,11 @@ struct NowPlayingView: View {
             Button { player.togglePlayback() } label: {
                 Image(systemName: player.isPlaying ? "pause.fill" : "play.fill")
                     .font(.system(size: 30, weight: .bold))
-                    .foregroundStyle(.black.opacity(0.75))
+                    .foregroundStyle(Color(uiColor: .systemBackground).opacity(0.85))
                     .frame(width: 88, height: 88)
                     .background {
                         Circle().fill(LinearGradient(
-                            colors: [.white, Color(white: 0.78)],
+                            colors: [Color.primary, Color.primary.opacity(0.78)],
                             startPoint: .top, endPoint: .bottom
                         ))
                     }
@@ -158,7 +157,7 @@ struct NowPlayingView: View {
             .accessibilityLabel("Next song")
         }
         .buttonStyle(.plain)
-        .foregroundStyle(.white)
+        .foregroundStyle(.primary)
         .padding(.horizontal, 40)
     }
 
@@ -184,17 +183,31 @@ private struct WaveformProgress: View {
                                   width: max(2, step * 0.48), height: height)
                 bars.addRoundedRect(in: rect, cornerSize: CGSize(width: 2, height: 2))
             }
-            context.fill(bars, with: .color(.white.opacity(0.16)))
+            context.fill(bars, with: .color(Color.primary.opacity(0.16)))
             context.clip(to: Path(CGRect(x: 0, y: 0, width: size.width * min(max(progress, 0), 1), height: size.height)))
-            context.fill(bars, with: .color(.white))
+            context.fill(bars, with: .color(.primary))
         }
     }
 }
 
-#Preview {
-    NavigationStack {
-        NowPlayingView(player: SongsPlayViewModel(
-            playlist: MusicLibrary.playlists.first ?? Playlist(name: "", songs: [])
-        ))
+#Preview("NowPlayingView · Light") {
+    Group {
+        NavigationStack {
+            NowPlayingView(player: SongsPlayViewModel(
+                playlist: MusicLibrary.playlists.first ?? Playlist(name: "", songs: [])
+            ))
+        }
     }
+    .preferredColorScheme(.light)
+}
+
+#Preview("NowPlayingView · Dark") {
+    Group {
+        NavigationStack {
+            NowPlayingView(player: SongsPlayViewModel(
+                playlist: MusicLibrary.playlists.first ?? Playlist(name: "", songs: [])
+            ))
+        }
+    }
+    .preferredColorScheme(.dark)
 }

@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct MainMenuView: View {
+    @Environment(\.colorScheme) private var colorScheme
     var body: some View {
         NavigationStack {
             GeometryReader { geo in
@@ -40,6 +41,7 @@ struct MainMenuView: View {
                                 Image("clock2")
                                     .resizable()
                                     .scaledToFill()
+                                    .overlay(Color(uiColor: .systemBackground).opacity(colorScheme == .dark ? 0.65 : 0.50))
                             }
                             .clipShape(
                                 RoundedRectangle(cornerRadius: 28, style: .continuous)
@@ -74,6 +76,7 @@ struct MainMenuView: View {
                                 Image("headphone")
                                     .resizable()
                                     .scaledToFill()
+                                    .overlay(Color(uiColor: .systemBackground).opacity(colorScheme == .dark ? 0.65 : 0.50))
                             }
                             .clipShape(
                                 RoundedRectangle(cornerRadius: 28, style: .continuous)
@@ -88,17 +91,28 @@ struct MainMenuView: View {
                         .buttonStyle(.plain)
                     
                     }
-                    .foregroundColor(Color.black)
+                    .foregroundColor(.primary)
                     .padding(.vertical, 10)
                     .padding(.horizontal, 10)
 //                    .frame(width: .infinity, height: geo.size.height)
                 }
             }
         }
+        .tint(.primary)
     }
 }
 
 
-#Preview {
-    MainMenuView()
+#Preview("MainMenuView · Light") {
+    Group {
+        MainMenuView()
+    }
+    .preferredColorScheme(.light)
+}
+
+#Preview("MainMenuView · Dark") {
+    Group {
+        MainMenuView()
+    }
+    .preferredColorScheme(.dark)
 }

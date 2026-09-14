@@ -9,6 +9,7 @@ import SwiftUI
 import AVFoundation
 
 struct PlaylistDetailView: View {
+    @Environment(\.colorScheme) private var colorScheme
     let playlist: Playlist
     @ObservedObject var player: SongsPlayViewModel
     @State private var showsNowPlaying = false
@@ -24,8 +25,10 @@ struct PlaylistDetailView: View {
                             .scaledToFill()
                             .frame(width: geometry.size.width, height: min(geometry.size.width * 0.95, 430))
 //                            .overlay {
-//                                LinearGradient(colors: [.black.opacity(0.4), .clear],
-//                                               startPoint: .top, endPoint: .center)
+//                                LinearGradient(
+//                                    colors: [Color(uiColor: .systemBackground).opacity(0.80), .clear],
+//                                    startPoint: .top, endPoint: .center
+//                                )
 //                            }
                             .clipShape(UnevenRoundedRectangle(bottomLeadingRadius: 32, bottomTrailingRadius: 32))
                             .accessibilityLabel("Cover for \(playlist.name)")
@@ -51,7 +54,7 @@ struct PlaylistDetailView: View {
                 .ignoresSafeArea(.container, edges: .top)
             }
         }
-        .background(Color.black)
+        .background(Color(uiColor: .systemBackground))
         .safeAreaInset(edge: .bottom, spacing: 0) {
             NowPlayingBar(player: player) {
                 showsNowPlaying = true
@@ -60,9 +63,8 @@ struct PlaylistDetailView: View {
         .navigationTitle("\(playlist.name) Playlist")
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(.hidden, for: .navigationBar)
-        .toolbarColorScheme(.dark, for: .navigationBar)
-        .preferredColorScheme(.dark)
-        .tint(.white)
+        .toolbarColorScheme(colorScheme, for: .navigationBar)
+        .tint(.primary)
         .navigationDestination(isPresented: $showsNowPlaying) {
             NowPlayingView(player: player)
         }
@@ -75,19 +77,19 @@ struct PlaylistDetailView: View {
         VStack(alignment: .leading, spacing: 5) {
             Text(playlist.name)
                 .font(.title2.bold())
-                .foregroundStyle(.white)
+                .foregroundStyle(.primary)
 
             if !playlist.description.isEmpty {
                 Text(playlist.description)
                     .font(.subheadline)
-                    .foregroundStyle(.white.opacity(0.9))
+                    .foregroundStyle(Color.primary.opacity(0.9))
             }
 
             Text(totalDuration.map {
                 "\(playlist.songs.count) songs · \(Int(ceil($0 / 60))) minutes"
             } ?? "\(playlist.songs.count) songs")
                 .font(.subheadline)
-                .foregroundStyle(.white.opacity(0.45))
+                .foregroundStyle(.secondary)
         }
     }
 
@@ -105,11 +107,11 @@ struct PlaylistDetailView: View {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(song.title)
                         .font(.body)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(.primary)
                         .lineLimit(1)
                     Text(song.artist)
                         .font(.caption)
-                        .foregroundStyle(.white.opacity(0.45))
+                        .foregroundStyle(.secondary)
                         .lineLimit(1)
                 }
 
@@ -118,7 +120,7 @@ struct PlaylistDetailView: View {
                 if player.isPlaying && player.currentSong?.filename == song.filename {
                     Image(systemName: "waveform")
                         .font(.body)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(.primary)
                         .accessibilityLabel("Now playing")
                 }
             }
@@ -150,10 +152,24 @@ struct PlaylistDetailView: View {
     }
 }
 
-#Preview {
-    if let playlist = MusicLibrary.playlists.first {
-        NavigationStack {
-            PlaylistDetailView(playlist: playlist, player: SongsPlayViewModel(playlist: playlist))
+#Preview("PlaylistDetailView · Light") {
+    Group {
+        if let playlist = MusicLibrary.playlists.first {
+            NavigationStack {
+                PlaylistDetailView(playlist: playlist, player: SongsPlayViewModel(playlist: playlist))
+            }
         }
     }
+    .preferredColorScheme(.light)
+}
+
+#Preview("PlaylistDetailView · Dark") {
+    Group {
+        if let playlist = MusicLibrary.playlists.first {
+            NavigationStack {
+                PlaylistDetailView(playlist: playlist, player: SongsPlayViewModel(playlist: playlist))
+            }
+        }
+    }
+    .preferredColorScheme(.dark)
 }

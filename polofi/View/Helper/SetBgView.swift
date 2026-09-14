@@ -17,6 +17,13 @@ struct SetBgView: View {
         Image(scheduler.phase.imageName)
             .resizable()
             .scaledToFill()
+//            .overlay {
+//                LinearGradient(
+//                    colors: [Color(uiColor: .systemBackground).opacity(0.78),
+//                             Color(uiColor: .systemBackground).opacity(0.15)],
+//                    startPoint: .top, endPoint: .bottom
+//                )
+//            }
             .ignoresSafeArea()
             .onChange(of: scenePhase) { _, newPhase in
                 if newPhase == .active {
