@@ -41,7 +41,7 @@ struct MainMenuView: View {
                                 Image("clock2")
                                     .resizable()
                                     .scaledToFill()
-                                    .overlay(Color(uiColor: .systemBackground).opacity(colorScheme == .dark ? 0.65 : 0.50))
+//                                    .overlay(Color(uiColor: .systemBackground).opacity(colorScheme == .dark ? 0.65 : 0.50))
                             }
                             .clipShape(
                                 RoundedRectangle(cornerRadius: 28, style: .continuous)
@@ -76,7 +76,7 @@ struct MainMenuView: View {
                                 Image("headphone")
                                     .resizable()
                                     .scaledToFill()
-                                    .overlay(Color(uiColor: .systemBackground).opacity(colorScheme == .dark ? 0.65 : 0.50))
+//                                    .overlay(Color(uiColor: .systemBackground).opacity(colorScheme == .dark ? 0.65 : 0.50))
                             }
                             .clipShape(
                                 RoundedRectangle(cornerRadius: 28, style: .continuous)
